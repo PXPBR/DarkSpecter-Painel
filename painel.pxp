@@ -1,0 +1,196 @@
+import requests
+import time
+import os
+import json
+
+# Variável para armazenar as últimas consultas em cache
+cache_consultas = {}
+tempo_limite = 300  # Limite de 5 minutos em segundos (300 segundos)
+
+# Função para "limpar" o terminal
+def limpar_tela():
+    os.system('clear')
+
+# Função para exibir o cabeçalho do painel
+def mostrar_cabecalho():
+    limpar_tela()
+    print(r"""&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&#####&&&&&&&&#########&&&&&##########&&&&&&&&&&&&&&&&&&&&#####&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&###################################BGGGGGGGB#&&&&&&&&&&&##BBBBBBB##&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&############BBBGGGGBBB#####BGGPP5PP555555GPGB&&&&&&&#BGGGGBB#BBB##&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&###BGGGGPPP5YPGGPPGBGPPPGGP55PBG5PGG5JYYYYP555PB####BGGGGGGGB&BB##&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&#GP5PB#&&&#BBB#G5#&55PGPP55##5PBBGGB#&&#GPYJ55PGGGGGGGGGGB#&&&##BB##&
+&&&&&&&&&&&&&&###############BP5YPB&&&#BPY7?G#PYP5YPBP7?YPG#&&&B5YJJJJGG55PPPGGGGGBBB&&BPPGBBBB
+&&&&&&&&&&&&&&&&&&#####BGPPPGGB#&#BB&&&&&&BGB##BGG###BGB&&&&&#BBB&#BGPPPYY55PGGGGPPPP&&&#B&&&&&
+&&&&&&&&&&&&&&&&&&&##BPG#&&&#G55YPB#&&&&&&&&##&&B#&&###&&@&&&##G5YY5GB&&&BG5555555PPG&&&&&&&&&&
+&&&&&&&&&&&&&&&&###BP5PGGB#&&&&#BBB#&&&&#B#&&&&&##&&&&&###&&&&#BGB#&&&&BGP55YJJY5PGB#&&&&&&&&&&
+&&&&&&&&&&&&#######BGGPGGGB#&&&&&&&&&&BY~:^!5&@@&&@@&5!^:~YB&&&&&&&&##BGGPPP5YYGB##&&&&&&&&&&&&
+&&&&&&&&&########GPGB##BGP5Y5G#&&&&&&BY^   ...?#@@#J...   ^JB&&&&&##G5YY5GB###GPG#&&#PJ?5B&&&&&
+&&&&&&&&&######P5G#&&&&&&&######&&&&&Y7:. :P:  .7?.  .5^ .:?J&&&&&##B###&&&&&&&#G5GBG5JYGB&&&&&
+&&&&&&&&######55GGGP5PB&&&&&&&&&&&&@&J^:~J&B..........P&5~^^?#@&&&&&&&&&&&&BPYY5PG5G####&&&&&&&
+&&&&&&&##########GPGBGP55PB#&&&&&&@B~:. :B&J7!!^::^!777&#: .:7#&&&&&&&#BG5Y5GBG55B##&&&&&&&&&#G
+&&&&&&&########B5G##GGGGBB###&&&&&@JG&#B&&B  .^YGBY^.  P&&G#&G?@&&&&&###BBGGGBB#B5PPPG#&&&BPPP5
+&&&&&&########PP&&&&&&&&&&&&&&&@B!B&P&@&&&#?:. ~&&~ .:7#&&&&&P##~G@&&&&&&&&&&&&&&&GJ??JY#&BY555
+&&&&&&######B5G#BBGGB&&&&&&&&&&@PB#BP&&&5~5&#55B&&B5P#&5~5&&&PG#B5@&&&&&&&&&&BPGGB#B5Y5YYBBPPGG
+&&&&#######GYPGGBPPBBGPPBB##&&&&&G&^.7&&#GB&&@&GY5G&@@&BG#&&J.:&G#@&&&###BGPGB#G5PP5P5PB###&&&&
+&&&&&&#####BB##B5B#GYJ?J5GB#&&&&&&J.  !5&#YYG#GPJJPG#BY?B&G~  .J&@&&&##BGPYYJYP##5PGGB#&&&&&&&&
+&&&&&&&#######B5B&#######&&&&&&&&&YP~:.:P^^5&#BGBGGB#&P~:57.:~GY#@&&&&&&&######B##5B#&&&&&&&&&&
+&&&&&&&#######PG&&&&&&&#BBBB##&&&&G######B5YB&&&##&&&BY5####&#BG&&&&&##BBB#&&&&&&&BY##&&&&&&&&&
+&&&&&&&######GYGBPG&##PJ?YPB#&&&&&@&#B&&@&GJY&&&&&&&&YJG&@&&##&@&&&&&#BGY?J5B#&GPGB5G##&&&&&&&&
+&&&&&&&&#####BB#B5####GPG#&##B###&&&@#P5G@&PPB##&&##BPP#@GY5#@@&&######&#BPGB##&5GG5BP####B&&&&
+&&&&&&&&########B5#&#&#&&BYJ5PB#&&&&&&BY~J&#J!!:!7:7!?#&Y!YB&&&&&&#BP5YYG&&####&5P55BB##B#&&&&&
+&&&&&&&&&########PG&&&&#G5YJYGGGB#&&&&@&B!J&&BJ7~!!YB&&J!B&@&&&##BGGGYJJY5B&&&&B5GPBB#B#B&&&&&&
+&&&&&&&&&&&&&&####PG#&&#&#BPYYG#&&&&&&&&@&57B&##BB##&G7Y&@&&&&&&&&#G5JYPB###&#G5BBG#BG###&&###&
+&&&&&&&5PGBBB######G5G&&&&&BB&&&BGBGB#&&&@@J:~JPGGPJ~.J&@&&&#BGBB#&&&BB#&&&&#55B#BGBGPGPGP5BB##
+&&&&&&&G5&GPGBBBBBGBGPB&&&@&&@&#P5YPGG#&&&@#?:  ..  .7#@&&&#BGPJ55B&@&&&@@&&GPGBGGBBGG#&&PPB##&
+&&&&&&&#5&Y ...^J&@BJ55B&####&&&&#BGB&@&&@@@#BG5BBPG#&@@&&&@&BGBB#&&&###BBG55J??G!^:...Y&5GB#&&
+&&&&&&&B5&Y .GJ  5@J   5@? .:.:5#^^B@!~G&Y!!!!5&7!!!7GG~~~~^BG~^^.^Y.:..:.Y  ^^.G~ :P! .&PP#&&&
+&&&&&&&#5&! ^@B  B@: : 5@7 ~@? ^&. B! ?@G .#G..#. 5G  P  G#YG: 7&^.5BG .#BG. B@&BJ :@#  BBP&&&&
+&&&&&&&#5&: 7@Y .&G ~~ J@^ 7&! ?# .: ?@@G  ?P##&. B&. P. 5PP@^ 7@&#&@#  G@&. J#5&P .#B. 5#5&&&&
+&&&&&&&BG#. 5@7 :@! G7 J&:....!&G...:?@&&#P!::7#::^^^JB:.~^!@!.!@@@@@#..5@&^... #B  :. ~&GG&&&&
+&&&&&&&GBP^^B&~^7#^~B!^J#~~5B~~P5~!P~^P@5YP@G~~B!~Y&&@#^^B@&&7~!@#PG&&~~J@@7~!#YB&^~~!^!Y5G&&&
+&&&&&&&&B5PBG5PP&@@7&&@@@5@&@&&#&@P&@&&&&@@&@@@@&&&&&@&@&@&&&&&&&&&@&&&&@&@&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&""")
+    print("\n\n🔥 ** BEM-VINDO AO DARK SPECTER ** 🔥")
+    print(" Criado por PXP\n")
+
+# Função de login
+def login():
+    usuario_admin = "pxp"
+    senha_admin = "coxinha1212"
+
+    while True:
+        limpar_tela()
+        print("🔒 Tela de Login 🔒")
+        usuario = input("Usuário: ")
+        senha = input("Senha: ")
+
+        if usuario == usuario_admin and senha == senha_admin:
+            print("\n✅ Login bem-sucedido!")
+            time.sleep(1)
+            return True
+        else:
+            print("\n⚠️ Usuário ou senha incorretos. Tente novamente.")
+            time.sleep(1)
+
+# Função para mostrar o menu principal
+def mostrar_menu():
+    print("1 - PUXAR CEP")
+    print("2 - PUXAR IP")
+    print("3 - PUXAR BIN")
+    print("4 - PUXAR DDD")
+    print("5 - PUXAR CNPJ")
+    print("6 - CRIAR NOVA CONTA")
+    print("7 - Sair")
+    escolha = input("\nDIGITE QUAL VOCÊ QUER PUXAR: ")
+    return escolha
+
+# Função para organizar a exibição dos dados de forma bonita
+def formatar_dados(dados):
+    resultado_formatado = "\n--- RESULTADO DA PUXADA ---\n"
+    
+    if isinstance(dados, dict):
+        for chave, valor in dados.items():
+            resultado_formatado += f"{chave.capitalize()}: {valor}\n"
+    else:
+        resultado_formatado += str(dados)
+    
+    resultado_formatado += "\nPuxado por DarkSpecter\n"
+    
+    return resultado_formatado
+
+# Funções para buscar dados de cada API
+def buscar_cep(cep):
+    url = f"https://viacep.com.br/ws/{cep}/json/"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_ip(ip):
+    url = f"http://ip-api.com/json/{ip}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_bin(bin_num):
+    url = f"https://lookup.binlist.net/{bin_num}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_ddd(ddd):
+    url = f"https://brasilapi.com.br/api/ddd/v1/{ddd}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_cnpj(cnpj):
+    url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
+    response = requests.get(url)
+    return response.json()
+
+# Função para criar uma nova conta
+def criar_nova_conta():
+    with open('contas.json', 'a') as f:
+        usuario_novo = input("Digite o nome do novo usuário: ")
+        senha_nova = input("Digite a senha para o novo usuário: ")
+        nova_conta = {"usuario": usuario_novo, "senha": senha_nova}
+        f.write(json.dumps(nova_conta) + '\n')
+        print(f"\n✅ Conta criada com sucesso! Usuário: {usuario_novo}")
+
+# Função principal
+def main():
+    if not login():
+        return
+
+    while True:
+        mostrar_cabecalho()
+        escolha = mostrar_menu()
+
+        if escolha == '1':
+            dado = input("\nDigite o CEP: ")
+            dados = buscar_cep(dado)
+        elif escolha == '2':
+            dado = input("\nDigite o IP: ")
+            dados = buscar_ip(dado)
+        elif escolha == '3':
+            dado = input("\nDigite o BIN: ")
+            dados = buscar_bin(dado)
+        elif escolha == '4':
+            dado = input("\nDigite o DDD: ")
+            dados = buscar_ddd(dado)
+        elif escolha == '5':
+            dado = input("\nDigite o CNPJ: ")
+            dados = buscar_cnpj(dado)
+        elif escolha == '6':
+            criar_nova_conta()
+            continue
+        elif escolha == '7':
+            print("\nSaindo...")
+            break
+        else:
+            print("\nOpção inválida! Tente novamente.")
+            time.sleep(1)
+            continue
+
+        # Exibir os resultados ou erros de forma organizada
+        print("\nFazendo Puxada…")
+        time.sleep(2)
+
+        if "error" in dados:
+            print(f"\n⚠️ Erro ao buscar dados: {dados['error']}\n")
+        else:
+            print(formatar_dados(dados))
+
+        # Menu para voltar ou sair
+        while True:
+            print("\n1 - Voltar ao Menu")
+            print("2 - Sair")
+            escolha_final = input("\nEscolha uma opção: ")
+            if escolha_final == '1':
+                break
+            elif escolha_final == '2':
+                print("\nSaindo...")
+                return
+            else:
+                print("\nOpção inválida! Tente novamente.")
+                time.sleep(1)
+
+if __name__ == "__main__":
+    main()
