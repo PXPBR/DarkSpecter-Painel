@@ -8,13 +8,16 @@ Este é um painel para puxar dados de diferentes APIs usando Python.
 - Python 3.x
 - Termux (se estiver usando Android)
 
-## Instalação
-
+## Instalação (OBRIGATÓRIO)
+## 1 PASSO
    pkg upgrade && pkg update
+## 2 PASSO
    git clone https://github.com/PXPBR/DarkSpecter-Painel.git
+## 3 PASSO
    Cd DarkSpecter-Painel
-   chmod +x painel.pxp
-   pip install -r requirements.txt
+## 4 PASSO
+   chmod +x painel.px
+## INICIALIZAÇÃO
    ./painel.pxp
 ## REABRIR
    Cd DarkSpecter-Painel
