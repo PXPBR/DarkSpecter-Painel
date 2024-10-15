@@ -16,12 +16,12 @@ Este é um painel para puxar dados de diferentes APIs usando Python.
 ## 3 PASSO
    Cd DarkSpecter-Painel
 ## 4 PASSO
-   chmod +x painel.pxp
+   chmod +r painel.pxp
 ## INICIALIZAÇÃO
-   ./painel.pxp ou python painel.pxp
+   python3 painel.pxp 
 ## REABRIR
    Cd DarkSpecter-Painel
-   ./painel.pxp
+   python3 painel.pxp
 ## LOGIN
 Para Fazer login necessario entrar em contato!
 [PXPBLACK](HTTPS://t.me/PXPBLACK)
