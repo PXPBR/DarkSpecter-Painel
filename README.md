@@ -24,3 +24,4 @@ Este é um painel para puxar dados de diferentes APIs usando Python.
    ./painel.pxp
 ## LOGIN
 Para Fazer login necessario entrar em contato!
+[PXPBLACK](t.me/PXPBLACK)
