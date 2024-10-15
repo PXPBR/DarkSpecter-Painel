@@ -10,8 +10,12 @@ Este é um painel para puxar dados de diferentes APIs usando Python.
 
 ## Instalação
 
-   ```bash
+   pkg upgrade && pkg update
    git clone https://github.com/PXP/DarkSpecter-Painel.git
    Cd DarkSpecter-Painel
+   chmod +x painel.pxp
    pip install -r requirements.txt
-   python painel.pxp.py
+   ./painel.pxp
+## REABRIR
+   Cd DarkSpecter-Painel
+   ./painel.pxp
