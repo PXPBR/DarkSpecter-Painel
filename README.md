@@ -17,6 +17,8 @@ Este é um painel para puxar dados de diferentes APIs usando Python.
    Cd DarkSpecter-Painel
 ## 4 PASSO
    chmod +r painel.pxp
+## 5 PASSO
+   pip install requests
 ## INICIALIZAÇÃO
    python3 painel.pxp 
 ## REABRIR
