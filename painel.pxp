@@ -4,6 +4,45 @@ import time
 import os
 import json
 
+# Função para baixar o arquivo contas.json de um repositório privado
+def baixar_contas_do_github():
+    # URL do seu repositório privado contendo o arquivo contas.json
+    url = "https://raw.githubusercontent.com/usuario/repositorio_privado/main/contas.json"
+    
+    # Cabeçalhos de autenticação com o token pessoal (substitua pelo seu token)
+    headers = {
+        "Authorization": "token SEU_TOKEN_DE_AUTENTICACAO"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        with open('contas.json', 'w') as f:
+            f.write(response.text)
+        print("✅ contas.json baixado com sucesso do GitHub!")
+    else:
+        print(f"⚠️ Erro ao baixar contas.json: {response.status_code}")
+
+# Função para verificar atualizações no painel
+def verificar_atualizacoes(ultima_versao):
+    url = f"https://api.github.com/repos/PXPBR/DarkSpecter-Painel/commits?path=painel.pxp"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        commits = response.json()
+        nova_versao = commits[0]['sha']  # Acessa o hash do commit mais recente
+        if nova_versao != ultima_versao:
+            print("\n🔄 Uma nova versão do painel está disponível!")
+            print(f"Última versão: {nova_versao[:7]}")  # Exibe apenas os 7 primeiros caracteres do hash
+            print("Atualize para obter as últimas funcionalidades e correções.")
+            return nova_versao
+        else:
+            print("\n✅ O painel está atualizado!")
+            return ultima_versao
+    else:
+        print("\n⚠️ Não foi possível verificar atualizações.")
+        return ultima_versao
+
 # Variável para armazenar as últimas consultas em cache
 cache_consultas = {}
 tempo_limite = 300  # Limite de 5 minutos em segundos (300 segundos)
@@ -60,28 +99,43 @@ def login():
     usuario_admin = "pxp"
     senha_admin = "coxinha1212"
 
+    # Baixar o arquivo contas.json do GitHub antes de tentar logar
+    baixar_contas_do_github()
+
+    with open('contas.json', 'r') as f:
+        contas = [json.loads(linha) for linha in f]
+
     while True:
         limpar_tela()
         print("🔒 Tela de Login 🔒")
         usuario = input("Usuário: ")
         senha = input("Senha: ")
 
+        # Verifica se é o administrador
         if usuario == usuario_admin and senha == senha_admin:
-            print("\n✅ Login bem-sucedido!")
+            print("\n✅ Login bem-sucedido como Admin!")
             time.sleep(1)
-            return True
-        else:
-            print("\n⚠️ Usuário ou senha incorretos. Tente novamente.")
-            time.sleep(1)
+            return 'admin'
+
+        # Verifica se o usuário é um dos normais
+        for conta in contas:
+            if conta['usuario'] == usuario and conta['senha'] == senha:
+                print("\n✅ Login bem-sucedido!")
+                time.sleep(1)
+                return 'user'
+
+        print("\n⚠️ Usuário ou senha incorretos. Tente novamente.")
+        time.sleep(1)
 
 # Função para mostrar o menu principal
-def mostrar_menu():
+def mostrar_menu(admin=False):
     print("1 - PUXAR CEP")
     print("2 - PUXAR IP")
     print("3 - PUXAR BIN")
     print("4 - PUXAR DDD")
     print("5 - PUXAR CNPJ")
-    print("6 - CRIAR NOVA CONTA")
+    if admin:
+        print("6 - CRIAR NOVA CONTA")
     print("7 - Sair")
     escolha = input("\nDIGITE QUAL VOCÊ QUER PUXAR: ")
     return escolha
@@ -105,6 +159,79 @@ def buscar_cep(cep):
     url = f"https://viacep.com.br/ws/{cep}/json/"
     response = requests.get(url)
     return response.json()
+
+def buscar_ip(ip):
+    url = f"http://ip-api.com/json/{ip}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_bin(bin_num):
+    url = f"https://lookup.binlist.net/{bin_num}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_ddd(ddd):
+    url = f"https://brasilapi.com.br/api/ddd/v1/{ddd}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_cnpj(cnpj):
+    url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
+    response = requests.get(url)
+    return response.json()
+
+# Função para criar uma nova conta (somente admin)
+def criar_nova_conta():
+    with open('contas.json', 'a') as f:
+        usuario_novo = input("Digite o nome do novo usuário: ")
+        senha_nova = input("Digite a senha para o novo usuário: ")
+        nova_conta = {"usuario": usuario_novo, "senha": senha_nova}
+        f.write(json.dumps(nova_conta) + '\n')
+        print(f"\n✅ Conta criada com sucesso! Usuário: {usuario_novo}")
+
+# Função principal
+def main():
+    ultima_versao = 'inicial'  # Ou obtenha de um arquivo ou variável persistente
+    ultima_versao = verificar_atualizacoes(ultima_versao)
+    
+    role = login()  # Login retorna o papel do usuário (admin ou user)
+
+    while True:
+        mostrar_cabecalho()
+        escolha = mostrar_menu(admin=(role == 'admin'))
+
+        if escolha == '1':
+            dado = input("\nDigite o CEP: ")
+            dados = buscar_cep(dado)
+        elif escolha == '2':
+            dado = input("\nDigite o IP: ")
+            dados = buscar_ip(dado)
+        elif escolha == '3':
+            dado = input("\nDigite o BIN: ")
+            dados = buscar_bin(dado)
+        elif escolha == '4':
+            dado = input("\nDigite o DDD: ")
+            dados = buscar_ddd(dado)
+        elif escolha == '5':
+            dado = input("\nDigite o CNPJ: ")
+            dados = buscar_cnpj(dado)
+        elif escolha == '6' and role == 'admin':
+            criar_nova_conta()
+            continue
+        elif escolha == '7':
+            print("\nSaindo...")
+            break
+        else:
+            print("\nOpção inválida! Tente novamente.")
+            time.sleep(1)
+            continue
+
+        # Exibir os resultados ou erros de forma organizada
+        print(formatar_dados(dados))
+        input("\nPressione Enter para continuar...")
+
+if __name__ == "__main__":
+    main()
 
 def buscar_ip(ip):
     url = f"http://ip-api.com/json/{ip}"
