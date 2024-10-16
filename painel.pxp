@@ -4,14 +4,12 @@ import time
 import os
 import json
 
-# Função para baixar o arquivo contas.json de um repositório privado
-def baixar_contas_do_github():
-    # URL do seu repositório privado contendo o arquivo contas.json
-    url = "https://raw.githubusercontent.com/usuario/repositorio_privado/main/contas.json"
-    
-    # Cabeçalhos de autenticação com o token pessoal (substitua pelo seu token)
+# Função para fazer o download do arquivo contas.json
+def baixar_contas_json():
+    url = "https://raw.githubusercontent.com/PXPBR/Contas/main/contas.json"  # URL do arquivo no repositório
     headers = {
-        "Authorization": "token SEU_TOKEN_DE_AUTENTICACAO"
+        'Authorization': 'Bearer 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',  # Token de acesso
+        'Accept': 'application/vnd.github.v3.raw',
     }
 
     response = requests.get(url, headers=headers)
@@ -19,14 +17,19 @@ def baixar_contas_do_github():
     if response.status_code == 200:
         with open('contas.json', 'w') as f:
             f.write(response.text)
-        print("✅ contas.json baixado com sucesso do GitHub!")
+        print("\n✅ O arquivo contas.json foi baixado com sucesso!")
     else:
-        print(f"⚠️ Erro ao baixar contas.json: {response.status_code}")
+        print("\n⚠️ Não foi possível baixar o arquivo contas.json. Verifique o token ou o repositório.")
 
 # Função para verificar atualizações no painel
 def verificar_atualizacoes(ultima_versao):
     url = f"https://api.github.com/repos/PXPBR/DarkSpecter-Painel/commits?path=painel.pxp"
-    response = requests.get(url)
+    headers = {
+        'Authorization': 'Bearer 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',  # Token de acesso
+        'Accept': 'application/vnd.github.v3.raw',
+    }
+    
+    response = requests.get(url, headers=headers)
     
     if response.status_code == 200:
         commits = response.json()
@@ -82,6 +85,156 @@ def mostrar_cabecalho():
 &&&&&&&&&########PG&&&&#G5YJYGGGB#&&&&@&B!J&&BJ7~!!YB&&J!B&@&&&##BGGGYJJY5B&&&&B5GPBB#B#B&&&&&&
 &&&&&&&&&&&&&&####PG#&&#&#BPYYG#&&&&&&&&@&57B&##BB##&G7Y&@&&&&&&&&#G5JYPB###&#G5BBG#BG###&&###&
 &&&&&&&5PGBBB######G5G&&&&&BB&&&BGBGB#&&&@@J:~JPGGPJ~.J&@&&&#BGBB#&&&BB#&&&&#55B#BGBGPGPGP5BB##
+&&&&&&&G5&GPGBBBBBGBGPB&&&@&&@&#P5YPGG#&&&@#?:  ..  .7#@&&&#BGPJ55B&@&&&@@&&GPGBGGBBGG#&&PPB##&
+&&&&&&&#5&Y ...^J&@BJ55B&####&&&&#BGB&@&&@@@#BG5BBPG#&@@&&&@&BGBB#&&&###BBG55J??G!^:...Y&5GB#&&
+&&&&&&&B5&Y .GJ  5@J   5@? .:.:5#^^B@!~G&Y!!!!5&7!!!7GG~~~~^BG~^^.^Y.:..:.Y  ^^.G~ :P! .&PP#&&&
+&&&&&&&#5&! ^@B  B@: : 5@7 ~@? ^&. B! ?@G .#G..#. 5G  P  G#YG: 7&^.5BG .#BG. B@&BJ :@#  BBP&&&&
+&&&&&&&#5&: 7@Y .&G ~~ J@^ 7&! ?# .: ?@@G  ?P##&. B&. P. 5PP@^ 7@&#&@#  G@&. J#5&P .#B. 5#5&&&&
+&&&&&&&BG#. 5@7 :@! G7 J&:....!&G...:?@&&#P!::7#::^^^JB:.~^!@!.!@@@@@#..5@&^... #B  :. ~&GG&&&&
+&&&&&&&GBP^^B&~^7#^~B!^J#~~5B~~P5~!P~^P@5YP@G~~B!~Y&&@#^^B@&&7~!@#PG&&~~J@@7~!#YB&^~~!^!Y5G&&&
+&&&&&&&&B5PBG5PP&@@7&&@@@5@&@&&#&@P&@&&&&@@&@@@@&&&&&@&@&@&&&&&&&&&@&&&&@&@&&&&&&&&&&&&&&&&&&&
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&""")
+    print("\n\n🔥 ** BEM-VINDO AO DARK SPECTER ** 🔥")
+    print(" Criado por PXP\n")
+
+# Função de login
+def login():
+    usuario_admin = "pxp"
+    senha_admin = "coxinha1212"
+
+    # Baixa o arquivo contas.json antes de tentar o login
+    baixar_contas_json()
+
+    with open('contas.json', 'r') as f:
+        contas = [json.loads(linha) for linha in f]
+
+    while True:
+        limpar_tela()
+        print("🔒 Tela de Login 🔒")
+        usuario = input("Usuário: ")
+        senha = input("Senha: ")
+
+        # Verifica se é o administrador
+        if usuario == usuario_admin and senha == senha_admin:
+            print("\n✅ Login bem-sucedido como Admin!")
+            time.sleep(1)
+            return 'admin'
+
+        # Verifica se o usuário é um dos normais
+        for conta in contas:
+            if conta['usuario'] == usuario and conta['senha'] == senha:
+                print("\n✅ Login bem-sucedido!")
+                time.sleep(1)
+                return 'user'
+
+        print("\n⚠️ Usuário ou senha incorretos. Tente novamente.")
+        time.sleep(1)
+
+# Função para mostrar o menu principal
+def mostrar_menu(admin=False):
+    print("1 - PUXAR CEP")
+    print("2 - PUXAR IP")
+    print("3 - PUXAR BIN")
+    print("4 - PUXAR DDD")
+    print("5 - PUXAR CNPJ")
+    if admin:
+        print("6 - CRIAR NOVA CONTA")
+    print("7 - Sair")
+    escolha = input("\nDIGITE QUAL VOCÊ QUER PUXAR: ")
+    return escolha
+
+# Função para organizar a exibição dos dados de forma bonita
+def formatar_dados(dados):
+    resultado_formatado = "\n--- RESULTADO DA PUXADA ---\n"
+    
+    if isinstance(dados, dict):
+        for chave, valor in dados.items():
+            resultado_formatado += f"{chave.capitalize()}: {valor}\n"
+    else:
+        resultado_formatado += str(dados)
+    
+    resultado_formatado += "\nPuxado por DarkSpecter\n"
+    
+    return resultado_formatado
+
+# Funções para buscar dados de cada API
+def buscar_cep(cep):
+    url = f"https://viacep.com.br/ws/{cep}/json/"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_ip(ip):
+    url = f"http://ip-api.com/json/{ip}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_bin(bin_num):
+    url = f"https://lookup.binlist.net/{bin_num}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_ddd(ddd):
+    url = f"https://brasilapi.com.br/api/ddd/v1/{ddd}"
+    response = requests.get(url)
+    return response.json()
+
+def buscar_cnpj(cnpj):
+    url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
+    response = requests.get(url)
+    return response.json()
+
+# Função para criar uma nova conta (somente admin)
+def criar_nova_conta():
+    with open('contas.json', 'a') as f:
+        usuario_novo = input("Digite o nome do novo usuário: ")
+        senha_nova = input("Digite a senha para o novo usuário: ")
+        nova_conta = {"usuario": usuario_novo, "senha": senha_nova}
+        f.write(json.dumps(nova_conta) + '\n')
+        print(f"\n✅ Conta criada com sucesso! Usuário: {usuario_novo}")
+
+# Função principal
+def main():
+    ultima_versao = 'inicial'  # Ou obtenha de um arquivo ou variável persistente
+    ultima_versao = verificar_atualizacoes(ultima_versao)
+    
+    role = login()  # Login retorna o papel do usuário (admin ou user)
+
+    while True:
+        mostrar_cabecalho()
+        escolha = mostrar_menu(admin=(role == 'admin'))
+
+        if escolha == '1':
+            dado = input("\nDigite o CEP: ")
+            dados = buscar_cep(dado)
+        elif escolha == '2':
+            dado = input("\nDigite o IP: ")
+            dados = buscar_ip(dado)
+        elif escolha == '3':
+            dado = input("\nDigite o BIN: ")
+            dados = buscar_bin(dado)
+        elif escolha == '4':
+            dado = input("\nDigite o DDD: ")
+            dados = buscar_ddd(dado)
+        elif escolha == '5':
+            dado = input("\nDigite o CNPJ: ")
+            dados = buscar_cnpj(dado)
+        elif escolha == '6' and role == 'admin':
+            criar_nova_conta()
+            continue
+        elif escolha == '7':
+            print("\nSaindo...")
+            break
+        else:
+            print("\nOpção inválida! Tente novamente.")
+            time.sleep(1)
+            continue
+
+        # Exibir os resultados ou erros de forma organizada
+        print(formatar_dados(dados))
+        input("\nPressione Enter para continuar...")
+
+if __name__ == "__main__":
+    main()
 &&&&&&&G5&GPGBBBBBGBGPB&&&@&&@&#P5YPGG#&&&@#?:  ..  .7#@&&&#BGPJ55B&@&&&@@&&GPGBGGBBGG#&&PPB##&
 &&&&&&&#5&Y ...^J&@BJ55B&####&&&&#BGB&@&&@@@#BG5BBPG#&@@&&&@&BGBB#&&&###BBG55J??G!^:...Y&5GB#&&
 &&&&&&&B5&Y .GJ  5@J   5@? .:.:5#^^B@!~G&Y!!!!5&7!!!7GG~~~~^BG~^^.^Y.:..:.Y  ^^.G~ :P! .&PP#&&&
